@@ -11,36 +11,50 @@ class TreeNode {
     }
 }
 
+
 public class P4重建二叉树 {
 
-    public static TreeNode reConstructBinaryTree(int[] pre, int[] in) {
-        if (pre.length == 0 || in.length == 0) {
-            return null;
-        }
-        Map<Integer, Integer> map = new HashMap<>();
-        TreeNode head = new TreeNode(pre[0]);
+
+    Map<Integer, Integer> result = new HashMap<>(16);
+
+    private void posMapping(int[] pre, int[] in) {
+        Map<Integer, Integer> map = new HashMap<>(16);
         for (int i = 0; i < in.length; i++) {
             map.put(in[i], i);
         }
-        return process(pre, 0, pre.length - 1, in, 0, in.length - 1, map);
+        for (int i = 0; i < pre.length; i++) {
+            result.put(i, map.get(pre[i]));
+        }
+
     }
 
-
-    private static TreeNode process(int[] pre, int prei, int prej, int[] in, int ini, int inj, Map<Integer, Integer> map) {
-        if (prei > prej) {
+    public TreeNode reConstructBinaryTree(int[] pre, int[] in) {
+        if (pre == null || in == null || pre.length == 0 || in.length == 0) {
             return null;
         }
-        TreeNode head = new TreeNode(pre[prei]);
-        int index = map.get(pre[prei]);
-        head.left = process(pre, prei + 1, prei + index - ini, in, ini, index, map);
-        head.right = process(pre, prei + index - ini + 1, prej, in, index + 1, inj, map);
-        return head;
+        posMapping(pre, in);
+        return process(pre, 0, pre.length - 1, in, 0, in.length - 1);
+    }
+
+    private TreeNode process(int[] pre, int preI, int preJ, int[] in, int inI, int inJ) {
+        if (preI > preJ) {
+            return null;
+        }
+        TreeNode node = new TreeNode(pre[preI]);
+        node.left = process(pre, preI + 1, result.get(preI) - inI + preI, in, inI,
+            result.get(preI) - 1);
+        node.right = process(pre, preJ - inJ + result.get(preI) + 1, preJ, in,
+            result.get(preI) + 1, inJ);
+        return node;
     }
 
     public static void main(String[] args) {
-        int[] pre = {1, 2, 4, 7, 3, 5, 6, 8};
-        int[] in = {4, 7, 2, 1, 5, 3, 8, 6};
-        reConstructBinaryTree(pre, in);
+        int[] arr1 = {1, 2, 3, 4, 5, 6, 7};
+        int[] arr2 = {3, 2, 4, 1, 6, 5, 7};
+        P4重建二叉树 p = new P4重建二叉树();
+        System.out.println(p.reConstructBinaryTree(arr1, arr2));
     }
+
+
 
 }
